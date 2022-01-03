@@ -1,8 +1,8 @@
 # RegEx Wrapper
 This is a wrapper around regular expressions for PHP 7.4 and 8.0.
 
-Regular expressions in PHP are a common point of failure, and working with match groups in particular can be a major
-headache. Inspired by the functionality Kotlin offers with its `Regex` calls, I decided to start implementing a similar
+Regular expressions in PHP are a common point of failure and working with match groups in particular can be a major
+headache. Inspired by the functionality Kotlin offers with its `Regex` class, I decided to start implementing a similar
 functionality for PHP. Hoping that one day the PHP team will improve the `preg_*` functions, this library provides a
 very simple wrapper for regular expressions in PHP.
 
@@ -13,8 +13,9 @@ be added in the future or if I am going to maintain this library at all.
 ## Install
 You can install this library using Composer:
 
-    composer require hoels/regex
-
+```shell
+composer require hoels/regex
+```
 
 ## Examples
 You can find a documentation of all functions, return value and properties below. Most times, examples are easier to
@@ -23,19 +24,23 @@ understand than documentation, so lets start with that.
 The simplest use-case may be the following: Imagine you just want to perform an action, if a user given input only
 consists of lowercase letters. You can do that as follows:
 
-    if (Regex::containsMatchIn("/^[a-z]+$/", $_GET["input"])) {
-        ...
-    }
+```php
+if (Regex::containsMatchIn("/^[a-z]+$/", $_GET["input"])) {
+    ...
+}
+```
 
 The previous example is also easy in PHP, lets get to more advanced stuff. Imagine you want to parse a date of the
 format yyyy/mm/dd out of a given string by using groups. You can do that as follows:
 
-    $matchResult = Regex::find("/(?P<year>\d{4})\/(?P<month>\d{2})\/(?P<day>\d{2})/", $input);
-    if ($matchResult !== null) {
-        $year = $matchResult->getGroup("year")?->getValue();
-        $month = $matchResult->getGroup("month")?->getValue();
-        $day = $matchResult->getGroup("day")?->getValue();
-    }
+```php
+$matchResult = Regex::find("/(?P<year>\d{4})\/(?P<month>\d{2})\/(?P<day>\d{2})/", $input);
+if ($matchResult !== null) {
+    $year = $matchResult->getGroup("year")?->getValue();
+    $month = $matchResult->getGroup("month")?->getValue();
+    $day = $matchResult->getGroup("day")?->getValue();
+}
+```
 
 You can also use the `findAll` function, which will return an array of match results, if there are multiple matches.
 
@@ -45,20 +50,26 @@ The main class of this library is the `Regex` class. The class currently provide
 
 ### containsMatchIn
 
-    Regex::containsMatchIn(string $regex, string $input): bool
+```php
+Regex::containsMatchIn(string $regex, string $input): bool
+```
 
 Indicates whether there is at least one match in `$input` for the regex given in `$regex`.
 
 ### find
 
-    Regex::find(string $regex, string $input): MatchResult|null
+```php
+Regex::find(string $regex, string $input): MatchResult|null
+```
 
 Returns the first match in `$input` for the regex given in `$regex`. Returns `null` if there is no match and an
 `MatchResult` object if there is a match.
 
 ### findAll
 
-    Regex::findAll(string $regex, string $input): MatchResult[]
+```php
+Regex::findAll(string $regex, string $input): MatchResult[]
+```
 
 Returns an array of `MatchResult` objects for all matches in `$input` for the regex given in `$regex`. Returns an
 empty array if there is no match.
