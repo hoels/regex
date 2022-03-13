@@ -1,7 +1,9 @@
 <?php
 
-namespace Tests\Regex;
+namespace Regex\Tests;
 
+use Exception;
+use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use Regex\MatchResult;
 use Regex\Regex;
@@ -41,8 +43,9 @@ class RegexTest extends TestCase
      * @param string $regex
      * @param string $input
      * @param bool $expectedResult
+     * @throws Exception
      */
-    public function testContains(string $regex, string $input, bool $expectedResult)
+    public function testContains(string $regex, string $input, bool $expectedResult): void
     {
         self::assertEquals($expectedResult, Regex::containsMatchIn($regex, $input));
     }
@@ -129,15 +132,15 @@ class RegexTest extends TestCase
      *
      * @param MatchResult $matchResult
      * @param string $expectedValue
-     * @param string $expectedOffset
+     * @param int $expectedOffset
      * @param array<mixed, array<int, mixed>> $expectedGroups
      */
     private function checkMatchResult(
         MatchResult $matchResult,
         string $expectedValue,
-        string $expectedOffset,
+        int $expectedOffset,
         array $expectedGroups
-    ) {
+    ): void {
         // Check if value and offset are correct.
         self::assertEquals($expectedValue, $matchResult->getValue());
         self::assertEquals($expectedOffset, $matchResult->getOffset());
@@ -162,6 +165,7 @@ class RegexTest extends TestCase
      * @param string $expectedValue
      * @param int $expectedOffset
      * @param array<mixed, array<int, mixed>> $expectedGroups
+     * @throws Exception
      */
     public function testFindNonNull(
         string $regex,
@@ -169,7 +173,7 @@ class RegexTest extends TestCase
         string $expectedValue,
         int $expectedOffset,
         array $expectedGroups
-    ) {
+    ): void {
         $matchResult = Regex::find($regex, $input);
         self::assertNotNull($matchResult);
         $this->checkMatchResult($matchResult, $expectedValue, $expectedOffset, $expectedGroups);
@@ -177,8 +181,10 @@ class RegexTest extends TestCase
 
     /**
      * Tests the Regex::find function for inputs that should output null.
+     *
+     * @throws Exception
      */
-    public function testFindNull()
+    public function testFindNull(): void
     {
         $regex = "/^[a-z]+$/";
         $input = "abcde123";
@@ -243,8 +249,9 @@ class RegexTest extends TestCase
      * @param string $regex
      * @param string $input
      * @param array<int, array<int, mixed>> $expectedMatches
+     * @throws Exception
      */
-    public function testFindAll(string $regex, string $input, array $expectedMatches)
+    public function testFindAll(string $regex, string $input, array $expectedMatches): void
     {
         // Check if the correct number of matches was found.
         $matchResults = Regex::findAll($regex, $input);
@@ -254,5 +261,101 @@ class RegexTest extends TestCase
         foreach ($expectedMatches as $key => $match) {
             $this->checkMatchResult($matchResults[$key], $match[0], $match[1], $match[2]);
         }
+    }
+
+    /**
+     * Data provider for the 'testMatchAt' test.
+     *
+     * @return array<int, array<int, mixed>>
+     */
+    public function matchAtProvider(): array
+    {
+        return [
+            ["/\\d\\.\\d/", "PHP 8.1 is great!",  0, false, false],
+            ["/\\d\\.\\d/", "PHP 8.1 is great!",  4,  true, false],
+            ["/\\d\\.\\d/", "PHP 8.1 is great!", 17, false, false],
+            ["/\\d\\.\\d/", "PHP 8.1 is great!", -1, false,  true],
+            ["/\\d\\.\\d/", "PHP 8.1 is great!", 18, false,  true],
+        ];
+    }
+
+    /**
+     * Tests the Regex::matchAt function.
+     *
+     * @dataProvider matchAtProvider
+     * @param string $regex
+     * @param string $input
+     * @param int $index
+     * @param bool $shouldMatch
+     * @param bool $shouldThrow
+     * @throws Exception
+     */
+    public function testMatchAt(string $regex, string $input, int $index, bool $shouldMatch, bool $shouldThrow): void
+    {
+        $threw = false;
+        try {
+            // Check if a match was found.
+            $matchResult = Regex::matchAt($regex, $input, $index);
+            self::assertEquals($shouldMatch, $matchResult !== null);
+        } catch (OutOfBoundsException) {
+            $threw = true;
+        }
+
+        // Check whether an exception was thrown.
+        self::assertEquals($shouldThrow, $threw);
+    }
+
+    /**
+     * Data provider for the 'testReplace' test.
+     *
+     * @return array<int, array<int, mixed>>
+     */
+    public function replaceProvider(): array
+    {
+        return [
+            ["/(\\d\\.\\d)\\.\\d+/", "PHP 8.1.3 is great!", "\$1", "PHP 8.1 is great!"],
+            ["/(\\d\\.\\d)\\.\\d+/", "PHP 8.0.16 and 8.1.3 are great!", "\$1", "PHP 8.0 and 8.1 are great!"],
+            ["/^\\w+/", "Python is great!", "PHP", "PHP is great!"],
+        ];
+    }
+
+    /**
+     * @dataProvider replaceProvider
+     * @param string $regex
+     * @param string $input
+     * @param string $replacement
+     * @param string $output
+     * @throws Exception
+     */
+    public function testReplace(string $regex, string $input, string $replacement, string $output): void
+    {
+        self::assertEquals($output, Regex::replace($regex, $input, $replacement));
+    }
+
+    /**
+     * Data provider for the 'testReplaceFirst' test.
+     *
+     * @return array<int, array<int, mixed>>
+     */
+    public function replaceFirstProvider(): array
+    {
+        return [
+            ["/(\\d\\.\\d)\\.\\d+/", "PHP 8.1.3 is great!", "\$1", "PHP 8.1 is great!"],
+            ["/(\\d\\.\\d)\\.\\d+/", "PHP 8.0.16 and 8.1.3 are great!", "\$1", "PHP 8.0 and 8.1.3 are great!"],
+            ["/^\\w+/", "Python is great!", "PHP", "PHP is great!"],
+        ];
+    }
+
+    /**
+     * @dataProvider replaceFirstProvider
+     * @param string $regex
+     * @param string $input
+     * @param string $replacement
+     * @param string $output
+     * @throws Exception
+     */
+    public function testReplaceFirst(string $regex, string $input, string $replacement, string $output): void
+    {
+        self::assertEquals($output, Regex::replaceFirst($regex, $input, $replacement));
     }
 }

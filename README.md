@@ -1,13 +1,13 @@
 # RegEx Wrapper
-This is a wrapper around regular expressions for PHP 7.4 and 8.0.
+This is a wrapper around regular expressions for PHP 7.4 to PHP 8.1.
 
 Regular expressions in PHP are a common point of failure and working with match groups in particular can be a major
 headache. Inspired by the functionality Kotlin offers with its `Regex` class, I decided to start implementing a similar
 functionality for PHP. Hoping that one day the PHP team will improve the `preg_*` functions, this library provides a
 very simple wrapper for regular expressions in PHP.
 
-Note this is very early development with very limited functionality. I do not know whether additional functionality will
-be added in the future or if I am going to maintain this library at all.
+In contrast to the Kotlin implementation, the delimiters (`/` at the beginning and end) have to be set. This allows for
+greater flexibility.
 
 
 ## Install
@@ -73,6 +73,39 @@ Regex::findAll(string $regex, string $input): MatchResult[]
 
 Returns an array of `MatchResult` objects for all matches in `$input` for the regex given in `$regex`. Returns an
 empty array if there is no match.
+
+### matchAt
+
+```php
+Regex::matchAt(string $regex, string $input, int $index): MatchResult|null
+```
+
+Returns the first match in `$input` for the regex given in `$regex`, only if the match starts at `$index`. Returns `null`
+if there is no match and an `MatchResult` object if there is a match at `$index`.
+
+### replace
+
+```php
+Regex::replace(string $regex, string $input, string $replacement): string
+```
+
+Replaces all occurrences of `$regex` in `$input` by the replacement expression `$replacement`. Example:
+
+```php
+echo Regex::replace("/(\\d\\.\\d)\\.\\d+/", "We support PHP 8.0.16 and 8.1.3.", "$1"); // We support PHP 8.0 and 8.1.
+```
+
+### replaceFirst
+
+```php
+Regex::replaceFirst(string $regex, string $input, string $replacement): string
+```
+
+Replaces the first occurrence of `$regex` in `$input` by the replacement expression `$replacement`. Example:
+
+```php
+echo Regex::replaceFirst("/(\\d\\.\\d)\\.\\d+/", "We support PHP 8.0.16 and 8.1.3.", "$1"); // We support PHP 8.0 and 8.1.3.
+```
 
 
 ## MatchResult
