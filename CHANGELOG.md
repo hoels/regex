@@ -4,8 +4,8 @@
 ### Added
 
 * New method: `Regex::matchAt`
-* New method: `Regex:replace`
-* New method: `Regex:replaceFirst`
+* New method: `Regex::replace`
+* New method: `Regex::replaceFirst`
 
 ### Changed
 
