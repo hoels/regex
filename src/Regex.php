@@ -11,7 +11,7 @@ abstract class Regex
      * @param string $regex The regular expression.
      * @param string $input The input string on which we want to apply the regular expression.
      * @return bool Returns whether there is a match.
-     * @throws Exception
+     * @throws Exception If the expression is malformed.
      */
     public static function containsMatchIn(string $regex, string $input): bool
     {

@@ -274,6 +274,7 @@ class RegexTest extends TestCase
             ["/\\d\\.\\d/", "PHP 8.1 is great!",  0, false, false],
             ["/\\d\\.\\d/", "PHP 8.1 is great!",  4,  true, false],
             ["/\\d\\.\\d/", "PHP 8.1 is great!", 17, false, false],
+            ["/\\w/",       "PHP 8.1 is great!",  8,  true, false],
             ["/\\d\\.\\d/", "PHP 8.1 is great!", -1, false,  true],
             ["/\\d\\.\\d/", "PHP 8.1 is great!", 18, false,  true],
         ];
